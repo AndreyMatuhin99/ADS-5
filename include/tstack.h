@@ -7,6 +7,7 @@ class TStack {
 private:
     T* data; // Указатель на массив данных стека
     int top; // Индекс вершины стека
+
 public:
     // Конструктор
     TStack() {
@@ -54,3 +55,5 @@ public:
         }
     }
 };
+
+#endif  // INCLUDE_TSTACK_H_
