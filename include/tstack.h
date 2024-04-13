@@ -4,6 +4,7 @@
 
 template<typename T, int size>
 class TStack {
+
 private:
     T* data; // Указатель на массив данных стека
     int top; // Индекс вершины стека
