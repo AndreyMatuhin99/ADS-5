@@ -56,5 +56,4 @@ public:
         }
     }
 };
-
 #endif  // INCLUDE_TSTACK_H_
