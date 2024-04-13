@@ -1,7 +1,7 @@
 // Copyright 2021 NNTU-CS
 #include <string>
 #include <sstream>
-#include "include/tstack.h"
+#include "tstack.h"
 
 bool isOperator(char c) {
     return c == '+' || c == '-' || c == '*' || c == '/';
