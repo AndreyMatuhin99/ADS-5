@@ -70,7 +70,10 @@ int eval(std::string post) {
                     result = operand1 * operand2;
                     break;
                 case '/':
-                    result = operand1 / operand2;
+                    if (operand2 != 0)
+                        result = operand1 / operand2;
+                    else
+                        throw std::invalid_argument("Division by zero");
                     break;
             }
             stack.push(result);
