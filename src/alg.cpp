@@ -4,14 +4,10 @@
 
 int priority(char x) {
     switch (x) {
-        case '(':
-            return 0;
-        case '+': case '-':
-            return 1;
-        case '*': case '/':
-            return 2;
-        default:
-            return -1;
+        case '(': return 0;
+        case '+': case '-': return 1;
+        case '*': case '/': return 2;
+        default: return -1;
     }
 }
 
@@ -59,8 +55,7 @@ int eval(std::string post) {
     TStack<int, 100> stack;
 
     for (char x : post) {
-        if (x == ' ')
-            continue;
+        if (x == ' ') continue;
 
         if (isdigit(x)) {
             stack.push(x - '0');  // Convert char to int
@@ -68,18 +63,10 @@ int eval(std::string post) {
             int v = stack.pop();
             int p = stack.pop();
             switch (x) {
-                case '+':
-                    stack.push(p + v);
-                    break;
-                case '-':
-                    stack.push(p - v);
-                    break;
-                case '*':
-                    stack.push(p * v);
-                    break;
-                case '/':
-                    stack.push(p / v);
-                    break;
+                case '+': stack.push(p + v); break;
+                case '-': stack.push(p - v); break;
+                case '*': stack.push(p * v); break;
+                case '/': stack.push(p / v); break;
             }
         }
     }
