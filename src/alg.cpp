@@ -15,7 +15,7 @@ int priority(char x) {
     }
 }
 
-void processOperator(char op, std::stringstream& postfix, const TStack<char, 100>& stack) {
+void processOperator(char op, std::stringstream& postfix, TStack<char, 100> stack) {
     char zna;
     while (!stack.isEmpty() && (zna = stack.get()) != '(' && priority(zna) >= priority(op)) {
         postfix << stack.pop() << ' ';
