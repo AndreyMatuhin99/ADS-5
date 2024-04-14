@@ -38,10 +38,12 @@ std::string infx2pstfx(const std::string& inf) {
             stack.push(x);
         } else if (x == ')') {
             processOperator(x, postfix, stack);
-            stack.pop(); // Pop '('
-        } else {
-            processOperator(x, postfix, stack);
-        }
+            stack.pop();
+        }  else {
+              processOperator(x, postfix, stack);
+              stack.push(x);
+          }
+
     }
 
     while (!stack.isEmpty()) {
@@ -52,9 +54,10 @@ std::string infx2pstfx(const std::string& inf) {
 }
 
 int eval(const std::string& post) {
+    std::string postFix = infx2pstfx(post);
     TStack<int, 100> stack;
 
-    std::stringstream ss(post);
+    std::stringstream ss(postFix);
     std::string token;
     while (ss >> token) {
         if (isdigit(token[0])) {
