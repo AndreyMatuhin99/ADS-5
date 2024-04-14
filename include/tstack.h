@@ -1,15 +1,13 @@
-// Copyright 2021 NNTU-CS
 #ifndef INCLUDE_TSTACK_H_
 #define INCLUDE_TSTACK_H_
 
 template<typename T, int size>
 class TStack {
-
-private:
+ private:
     T* data; // Указатель на массив данных стека
     int top; // Индекс вершины стека
 
-public:
+ public:
     // Конструктор
     TStack() {
         data = new T[size];
@@ -56,4 +54,5 @@ public:
         }
     }
 };
+
 #endif  // INCLUDE_TSTACK_H_
