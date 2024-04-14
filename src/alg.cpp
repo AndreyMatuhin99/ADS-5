@@ -1,72 +1,72 @@
 // Copyright 2021 NNTU-CS
 #include <string>
+#include <sstream>
 #include "tstack.h"
 
 int priority(char x) {
     switch (x) {
         case '(': return 0;
-        case '+': case '-': return 1;
-        case '*': case '/': return 2;
+        case ')': return 1;
+        case '+':
+        case '-': return 2;
+        case '*':
+        case '/': return 3;
         default: return -1;
     }
 }
 
+void processOperator(char op, std::stringstream& postfix, TStack<char, 100>& stack) {
+    while (!stack.isEmpty() && priority(stack.get()) >= priority(op)) {
+        postfix << stack.pop() << ' ';
+    }
+    stack.push(op);
+}
+
 std::string infx2pstfx(std::string inf) {
-    std::string post;
+    std::stringstream postfix;
     TStack<char, 100> stack;
 
     for (char x : inf) {
-        if (x == ' ')
-            continue;
+        if (x == ' ') continue;
 
-        int p = priority(x);
-
-        if (p == -1) {
-            post += x;
-            post += ' ';
-        } else {
-            if (stack.isEmpty() || x == '(') {
-                stack.push(x);
-            } else if (x == ')') {
-                while (!stack.isEmpty() && stack.get() != '(') {
-                    post += stack.pop();
-                    post += ' ';
-                }
-                stack.pop();  // Pop '('
-            } else {
-                while (!stack.isEmpty() && priority(stack.get()) >= p) {
-                    post += stack.pop();
-                    post += ' ';
-                }
-                stack.push(x);
+        int pr = priority(x);
+        if (pr == -1) {
+            postfix << x << ' ';
+        } else if (x == '(') {
+            stack.push(x);
+        } else if (x == ')') {
+            while (stack.get() != '(') {
+                postfix << stack.pop() << ' ';
             }
+            stack.pop(); // Pop '('
+        } else {
+            processOperator(x, postfix, stack);
         }
     }
 
     while (!stack.isEmpty()) {
-        post += stack.pop();
-        post += ' ';
+        postfix << stack.pop() << ' ';
     }
 
-    return post;
+    return postfix.str();
 }
 
 int eval(std::string post) {
     TStack<int, 100> stack;
 
-    for (char x : post) {
-        if (x == ' ') continue;
-
-        if (isdigit(x)) {
-            stack.push(x - '0');  // Convert char to int
+    std::stringstream ss(post);
+    std::string token;
+    while (ss >> token) {
+        if (isdigit(token[0])) {
+            stack.push(std::stoi(token));
         } else {
-            int v = stack.pop();
-            int p = stack.pop();
-            switch (x) {
-                case '+': stack.push(p + v); break;
-                case '-': stack.push(p - v); break;
-                case '*': stack.push(p * v); break;
-                case '/': stack.push(p / v); break;
+            int b = stack.pop();
+            int a = stack.pop();
+            switch (token[0]) {
+                case '+': stack.push(a + b); break;
+                case '-': stack.push(a - b); break;
+                case '*': stack.push(a * b); break;
+                case '/': stack.push(a / b); break;
             }
         }
     }
