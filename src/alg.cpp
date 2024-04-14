@@ -15,14 +15,14 @@ int priority(char x) {
     }
 }
 
-void processOperator(char op, std::stringstream& postfix, TStack<char, 100>& stack) {
-    while (!stack.isEmpty() && priority(stack.get()) >= priority(op)) {
+void processOperator(char op, std::stringstream& postfix, const TStack<char, 100>& stack) {
+    char zna;
+    while (!stack.isEmpty() && (zna = stack.get()) != '(' && priority(zna) >= priority(op)) {
         postfix << stack.pop() << ' ';
     }
-    stack.push(op);
 }
 
-std::string infx2pstfx(std::string inf) {
+std::string infx2pstfx(const std::string& inf) {
     std::stringstream postfix;
     TStack<char, 100> stack;
 
@@ -35,12 +35,11 @@ std::string infx2pstfx(std::string inf) {
         } else if (x == '(') {
             stack.push(x);
         } else if (x == ')') {
-            while (stack.get() != '(') {
-                postfix << stack.pop() << ' ';
-            }
+            processOperator(x, postfix, stack);
             stack.pop(); // Pop '('
         } else {
             processOperator(x, postfix, stack);
+            stack.push(x);
         }
     }
 
@@ -51,7 +50,7 @@ std::string infx2pstfx(std::string inf) {
     return postfix.str();
 }
 
-int eval(std::string post) {
+int eval(const std::string& post) {
     TStack<int, 100> stack;
 
     std::stringstream ss(post);
