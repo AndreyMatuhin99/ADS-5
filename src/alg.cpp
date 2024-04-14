@@ -15,10 +15,13 @@ int priority(char x) {
     }
 }
 
-void processOperator(char op, std::stringstream& postfix, TStack<char, 100> stack) {
+void processOperator(char op, std::stringstream& postfix, TStack<char, 100>& stack) {
     char zna;
     while (!stack.isEmpty() && (zna = stack.get()) != '(' && priority(zna) >= priority(op)) {
         postfix << stack.pop() << ' ';
+    }
+    if (op != ')') {
+        stack.push(op);
     }
 }
 
@@ -39,7 +42,6 @@ std::string infx2pstfx(const std::string& inf) {
             stack.pop(); // Pop '('
         } else {
             processOperator(x, postfix, stack);
-            stack.push(x);
         }
     }
 
