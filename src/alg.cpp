@@ -1,82 +1,86 @@
 // Copyright 2021 NNTU-CS
 #include <string>
-#include <sstream>
 #include "tstack.h"
 
-bool isOperator(char c) {
-    return c == '+' || c == '-' || c == '*' || c == '/';
-}
-
-int priority(char op) {
-    if (op == '+' || op == '-') return 1;
-    if (op == '*' || op == '/') return 2;
-    return 0;
+int priority(char x) {
+    switch (x) {
+        case '(':
+            return 0;
+        case '+': case '-':
+            return 1;
+        case '*': case '/':
+            return 2;
+        default:
+            return -1;
+    }
 }
 
 std::string infx2pstfx(std::string inf) {
+    std::string post;
     TStack<char, 100> stack;
-    std::string pst;
 
-    for (char c : inf) {
-        if (c == ' ') continue;
+    for (char x : inf) {
+        if (x == ' ')
+            continue;
 
-        if (isdigit(c)) {
-            pst += c;
-        } else if (c == '(') {
-            stack.push(c);
-        } else if (c == ')') {
-            while (!stack.isEmpty() && stack.get() != '(') {
-                pst += ' ';
-                pst += stack.pop();
+        int p = priority(x);
+
+        if (p == -1) {
+            post += x;
+            post += ' ';
+        } else {
+            if (stack.isEmpty() || x == '(') {
+                stack.push(x);
+            } else if (x == ')') {
+                while (!stack.isEmpty() && stack.get() != '(') {
+                    post += stack.pop();
+                    post += ' ';
+                }
+                stack.pop();  // Pop '('
+            } else {
+                while (!stack.isEmpty() && priority(stack.get()) >= p) {
+                    post += stack.pop();
+                    post += ' ';
+                }
+                stack.push(x);
             }
-            stack.pop();
-        } else if (isOperator(c)) {
-            while (!stack.isEmpty() && priority(stack.get()) >= priority(c)) {
-                pst += ' ';
-                pst += stack.pop();
-            }
-            stack.push(c);
         }
     }
 
     while (!stack.isEmpty()) {
-        pst += ' ';
-        pst += stack.pop();
+        post += stack.pop();
+        post += ' ';
     }
 
-    return pst;
+    return post;
 }
 
 int eval(std::string post) {
     TStack<int, 100> stack;
-    std::istringstream iss(post);
-    std::string token;
 
-    while (iss >> token) {
-        if (isdigit(token[0])) {
-            stack.push(std::stoi(token));
+    for (char x : post) {
+        if (x == ' ')
+            continue;
+
+        if (isdigit(x)) {
+            stack.push(x - '0');  // Convert char to int
         } else {
-            int operand2 = stack.pop();
-            int operand1 = stack.pop();
-            int result;
-            switch (token[0]) {
+            int v = stack.pop();
+            int p = stack.pop();
+            switch (x) {
                 case '+':
-                    result = operand1 + operand2;
+                    stack.push(p + v);
                     break;
                 case '-':
-                    result = operand1 - operand2;
+                    stack.push(p - v);
                     break;
                 case '*':
-                    result = operand1 * operand2;
+                    stack.push(p * v);
                     break;
                 case '/':
-                    if (operand2 != 0)
-                        result = operand1 / operand2;
-                    else
-                        throw std::invalid_argument("Division by zero");
+                    stack.push(p / v);
                     break;
             }
-            stack.push(result);
         }
     }
 
