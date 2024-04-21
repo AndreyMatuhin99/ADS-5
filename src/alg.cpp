@@ -1,78 +1,105 @@
 // Copyright 2021 NNTU-CS
+#include <climits>
+#include <iostream>
+#include <stack>
 #include <string>
-#include <sstream>
-#include "tstack.h"
 
-int priority(char x) {
-    switch (x) {
-        case '(': return 0;
-        case ')': return 1;
-        case '+':
-        case '-': return 2;
-        case '*':
-        case '/': return 3;
-        default: return -1;
-    }
+int prec(char c) {
+  if (c == '*' || c == '/') {
+    return 3;
+  }
+  if (c == '+' || c == '-') {
+    return 4;
+  }
+  if (c == '&') {
+    return 8;
+  }
+  if (c == '^') {
+    return 9;
+  }
+  if (c == '|') {
+    return 10;
+  }
+  return INT_MAX;
 }
-
-void processOperator(char op, std::stringstream& postfix,
-TStack<char, 100>& stack) {
-    char zna;
-    while (!stack.isEmpty() && (zna = stack.get()) !=
-    '(' && priority(zna) >= priority(op)) {
-        postfix << stack.pop() << ' ';
-    }
+bool isOperand(char c) {
+  return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') ||
+         (c >= '0' && c <= '9');
 }
-
-std::string infx2pstfx(const std::string& inf) {
-    std::stringstream postfix;
-    TStack<char, 100> stack;
-
-    for (char x : inf) {
-        if (x == ' ') continue;
-
-        int pr = priority(x);
-        if (pr == -1) {
-            postfix << x << ' ';
-        } else if (x == '(') {
-            stack.push(x);
-        } else if (x == ')') {
-            processOperator(x, postfix, stack);
-            stack.pop();
-        }  else {
-              processOperator(x, postfix, stack);
-              stack.push(x);
-          }
-
+std::string infx2pstfx(std::string inf) {
+  std::stack<char> s;
+  std::string postfix;
+  for (char c : inf) {
+    if (c == '(') {
+      s.push(c);
+    } else if (c == ')') {
+      while (s.top() != '(') {
+        postfix.push_back(s.top());
+        s.pop();
+      }
+      s.pop();
+    } else if (isOperand(c)) {
+      postfix.push_back(c);
+    } else {
+      while (!s.empty() && prec(c) >= prec(s.top())) {
+        postfix.push_back(s.top());
+        s.pop();
+      }
+      s.push(c);
     }
-
-    while (!stack.isEmpty()) {
-        postfix << stack.pop() << ' ';
-    }
-
-    return postfix.str();
+  }
+  while (!s.empty()) {
+    postfix.push_back(s.top());
+    s.pop();
+  }
+  std::string result(1, postfix[0]);
+  for (int i = 1; i < postfix.length() - 1; i++) {
+    result += " ";
+    result += postfix[i];
+  }
+  result += " ";
+  result += postfix[postfix.length() - 1];
+  return result;
 }
-
-int eval(const std::string& post) {
-    std::string postFix = infx2pstfx(post);
-    TStack<int, 100> stack;
-
-    std::stringstream ss(postFix);
-    std::string token;
-    while (ss >> token) {
-        if (isdigit(token[0])) {
-            stack.push(std::stoi(token));
-        } else {
-            int b = stack.pop();
-            int a = stack.pop();
-            switch (token[0]) {
-                case '+': stack.push(a + b); break;
-                case '-': stack.push(a - b); break;
-                case '*': stack.push(a * b); break;
-                case '/': stack.push(a / b); break;
-            }
-        }
+int Eval(const std::string& left, char oper, const std::string& right) {
+  int a = stoi(left);
+  int b = stoi(right);
+  switch (oper) {
+    case '*':
+      return a * b;
+    case '/':
+      return a / b;
+    case '+':
+      return a + b;
+    case '-':
+      return a - b;
+    default:
+      return 0;
+  }
+}
+int eval(std::string pref) {
+  std::string a(1, pref[0]);
+  for (int i = 2; i < pref.length(); i += 2) {
+    a += pref[i];
+  }
+  if (a[a.length() - 1] != pref[pref.length() - 1]) {
+    a += pref[pref.length() - 1];
+  }
+  pref = a;
+  std::stack<std::string> mstack;
+  for (char cur : pref) {
+    if (isdigit(cur)) {
+      mstack.push(std::string(1, cur));
+    } else {
+      if (!isOperand(cur)) {
+      std::string right = mstack.top();
+      mstack.pop();
+      std::string left = mstack.top();
+      mstack.pop();
+      int res = Eval(left, cur, right);
+      mstack.push(std::to_string(res));
     }
-
-    return stack.pop();
+    }
+  }
+  return stoi(mstack.top());
 }
